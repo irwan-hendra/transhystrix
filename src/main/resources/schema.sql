@@ -1,0 +1,5 @@
+CREATE TABLE PERSON (
+  id INT PRIMARY KEY,
+  firstname VARCHAR(250),
+  lastname VARCHAR(250)
+);
