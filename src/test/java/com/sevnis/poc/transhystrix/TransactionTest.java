@@ -64,6 +64,21 @@ public class TransactionTest {
   }
 
   @Test
+  public void transactions_chainedWithHelperThenRemote_rollBackSuccessful() {
+
+    try {
+      transactionalService.transactionA("remote");
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+
+    List<Person> persons = personRepository.findAll();
+    assertAll("Person size is 0",
+        () -> assertThat(persons.size(), is(0))
+    );
+  }
+
+  @Test
   public void transactions_chainedWithHystrix_rollBackSuccessful() {
 
     try {
@@ -79,7 +94,7 @@ public class TransactionTest {
   }
 
   @Test
-  public void transactions_chainedWithHystrixButLocal_rollBackFailed() {
+  public void transactions_chainedWithHystrixThenLocal_rollBackFailed() {
 
     try {
       transactionalService.transactionA("hystrixlocal");
@@ -88,10 +103,56 @@ public class TransactionTest {
     }
 
     List<Person> persons = personRepository.findAll();
-    assertAll("Person size is 1",
-        () -> assertThat(persons.size(), is(1)),
+    assertAll("Person size is 2",
+        () -> assertThat(persons.size(), is(2)),
         () -> assertThat(persons, hasItems(
-            allOf(hasProperty("firstname", is("Thor")), hasProperty("lastname", is("Odinson")))))
+            allOf(hasProperty("firstname", is("Thor")), hasProperty("lastname", is("Odinson"))),
+            allOf(hasProperty("firstname", is("Loki")), hasProperty("lastname", is("Odinson")))))
+    );
+  }
+
+  @Test
+  public void transactions_chainedWithHystrixThenHelper_rollBackSuccessful() {
+
+    try {
+      transactionalService.transactionA("hystrixhelper");
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+
+    List<Person> persons = personRepository.findAll();
+    assertAll("Person size is 0",
+        () -> assertThat(persons.size(), is(0))
+    );
+  }
+
+  @Test
+  public void transactions_chainedWithHystrixThenHelperThenRemote_rollBackSuccessful() {
+
+    try {
+      transactionalService.transactionA("hystrixremote");
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+
+    List<Person> persons = personRepository.findAll();
+    assertAll("Person size is 0",
+        () -> assertThat(persons.size(), is(0))
+    );
+  }
+
+  @Test
+  public void transactions_chainedWithHystrixShort_rollBackFailed() {
+
+    try {
+      transactionalService.transactionA("hystrixshort");
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+
+    List<Person> persons = personRepository.findAll();
+    assertAll("Person size is 1",
+        () -> assertThat(persons.size(), is(1))
     );
   }
 }

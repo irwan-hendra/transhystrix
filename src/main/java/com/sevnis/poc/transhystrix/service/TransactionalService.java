@@ -23,15 +23,24 @@ public class TransactionalService {
   public void transactionA(String mode) {
     personRepository.save(Person.builder().firstname("Thor").lastname("Odinson").build());
     try {
-      if ("local".equalsIgnoreCase(mode)) {
+      if ("local" .equalsIgnoreCase(mode)) {
         transactionB(mode);
-      } else if ("helper".equalsIgnoreCase(mode)) {
-        transactionalHelperService.transactionB();
-      } else if ("hystrix".equalsIgnoreCase(mode) || "hystrixlocal".equalsIgnoreCase(mode)) {
+      }
+
+      if ("helper" .equalsIgnoreCase(mode) || "remote" .equalsIgnoreCase(mode)) {
+        transactionalHelperService.transactionB(mode);
+      }
+
+      if ("hystrix" .equalsIgnoreCase(mode) || "hystrixlocal" .equalsIgnoreCase(mode)
+          || "hystrixhelper" .equalsIgnoreCase(mode) || "hystrixremote" .equalsIgnoreCase(mode)) {
         hystrixService.hystrixTransactionB(mode);
       }
-    } catch (Exception e) {
 
+      if ("hystrixshort" .equalsIgnoreCase(mode)) {
+        hystrixService.hystrixShort();
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
     }
   }
 
@@ -39,9 +48,10 @@ public class TransactionalService {
   public void transactionB(String mode) {
     personRepository.save(Person.builder().firstname("Loki").lastname("Odinson").build());
     try {
-      if ("local".equalsIgnoreCase(mode)) {
+      if ("local" .equalsIgnoreCase(mode)) {
         transactionC();
-      } else if ("hystrix".equalsIgnoreCase(mode)) {
+      }
+      if ("hystrix" .equalsIgnoreCase(mode)) {
         hystrixService.hystrixTransactionC();
       }
     } catch (Exception e) {

@@ -12,6 +12,9 @@ public class HystrixService {
   @Autowired
   private TransactionalService transactionalService;
 
+  @Autowired
+  private TransactionalHelperService transactionalHelperService;
+
   @HystrixCommand
   public void hystrixTransactionA(String mode) {
     transactionalService.transactionA(mode);
@@ -19,16 +22,41 @@ public class HystrixService {
 
   @HystrixCommand
   public void hystrixTransactionB(String mode) {
-    if ("hystrixlocal".equalsIgnoreCase(mode)) {
-      transactionC();
-    } else {
-      transactionalService.transactionB(mode);
+    try {
+      if ("hystrix" .equalsIgnoreCase(mode)) {
+        transactionalService.transactionB(mode);
+      }
+
+      if ("hystrixlocal" .equalsIgnoreCase(mode)) {
+        transactionalService.transactionB("local");
+      }
+      if ("hystrixhelper" .equalsIgnoreCase(mode)) {
+        transactionalHelperService.transactionB(mode);
+      }
+      if ("hystrixremote" .equalsIgnoreCase(mode)) {
+        transactionalHelperService.transactionB("remote");
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
     }
   }
 
   @HystrixCommand
   public void hystrixTransactionC() {
-    transactionalService.transactionC();
+    try {
+      transactionalService.transactionC();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+  @HystrixCommand
+  public void hystrixShort() {
+    try {
+      transactionC();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
   }
 
   @Transactional(propagation = Propagation.REQUIRED)

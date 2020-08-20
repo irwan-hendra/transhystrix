@@ -16,15 +16,31 @@ public class TransactionalHelperService {
   @Autowired
   private TransactionalService transactionalService;
 
+  @Autowired
+  private TransactionalRemoteService transactionalRemoteService;
+
+  @Autowired
+  private HystrixService hystrixService;
+
 
   @Transactional(propagation = Propagation.REQUIRED)
-  public void transactionB() {
+  public void transactionB(String mode) {
     personRepository.save(Person.builder().firstname("Loki").lastname("Odinson").build());
 
     try {
-      transactionalService.transactionC();
-    } catch (Exception e) {
 
+      if ("hystrixhelper" .equalsIgnoreCase(mode)) {
+        hystrixService.hystrixTransactionC();
+      }
+      if ("helper" .equalsIgnoreCase(mode)) {
+        transactionalService.transactionC();
+      }
+      if ("remote" .equalsIgnoreCase(mode)) {
+        transactionalRemoteService.transactionC();
+      }
+
+    } catch (Exception e) {
+      e.printStackTrace();
     }
   }
 }
